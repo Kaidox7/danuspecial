@@ -19,6 +19,53 @@
             position: relative;
         }
 
+        /* Start Button Overlay */
+        #startButton {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: opacity 0.5s;
+        }
+
+        #startButton h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            font-family: Georgia, serif;
+            animation: titleGlow 2s infinite ease-in-out;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            50% { text-shadow: 0 0 40px rgba(255, 255, 255, 0.8); }
+        }
+
+        #startButton button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        #startButton button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.7);
+        }
+
         /* Curtain Opening Animation */
         .curtain-container {
             position: fixed;
@@ -298,13 +345,51 @@
         .scroll-indicator div {
             font-size: 2rem;
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            #startButton h1 {
+                font-size: 2rem;
+            }
+            
+            #startButton button {
+                padding: 15px 35px;
+                font-size: 1.2rem;
+            }
+
+            .scene {
+                padding: 30px 20px;
+            }
+
+            .scene h1 {
+                font-size: 2rem;
+            }
+
+            .scene h2 {
+                font-size: 1.5rem;
+            }
+
+            .scene p {
+                font-size: 1rem;
+            }
+
+            .quality-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Audio Player -->
     <audio id="backgroundMusic" loop>
-        <source src="WhatsApp Audio 2025-11-23 at 16.37.49_47b99a9f.mp3" type="audio/mpeg">
+        <source src="background-music.mp3" type="audio/mpeg">
     </audio>
+
+    <!-- Start Button Overlay -->
+    <div id="startButton">
+        <h1>For Daniya ✨</h1>
+        <button onclick="startExperience()">Begin the Journey</button>
+    </div>
 
     <!-- Curtain Opening -->
     <div class="curtain-container" id="curtainContainer">
@@ -438,18 +523,25 @@
     </div>
 
     <script>
-        // Open curtains
-        window.addEventListener('load', () => {
+        // Start Experience Function
+        function startExperience() {
+            const startBtn = document.getElementById('startButton');
+            const music = document.getElementById('backgroundMusic');
+            
+            // Play music
+            music.play().catch(e => console.log('Audio play failed:', e));
+            
+            // Hide start button with fade effect
+            startBtn.style.opacity = '0';
+            setTimeout(() => {
+                startBtn.style.display = 'none';
+            }, 500);
+            
+            // Open curtains after a short delay
             setTimeout(() => {
                 document.getElementById('curtainContainer').classList.add('open');
-                // Start music after curtains open
-                const music = document.getElementById('backgroundMusic');
-                music.play().catch(e => {
-                    // Auto-play might be blocked, user needs to interact first
-                    document.addEventListener('click', () => music.play(), { once: true });
-                });
-            }, 500);
-        });
+            }, 1000);
+        }
 
         // Create snowflakes
         function createSnow() {
@@ -472,7 +564,14 @@
             }, 200);
         }
 
-        setTimeout(createSnow, 3000);
+        // Start snow after button is clicked (delayed)
+        let snowStarted = false;
+        document.addEventListener('click', function initSnow() {
+            if (!snowStarted) {
+                setTimeout(createSnow, 3000);
+                snowStarted = true;
+            }
+        }, { once: true });
 
         // Scroll-triggered scene reveals
         const scenes = document.querySelectorAll('.scene');
@@ -488,15 +587,20 @@
             });
 
             // Hide scroll indicator when scrolled
-            if (window.scrollY > 100) {
-                document.querySelector('.scroll-indicator').style.opacity = '0';
-            } else {
-                document.querySelector('.scroll-indicator').style.opacity = '1';
+            const scrollIndicator = document.querySelector('.scroll-indicator');
+            if (scrollIndicator) {
+                if (window.scrollY > 100) {
+                    scrollIndicator.style.opacity = '0';
+                }
             }
         }
 
         window.addEventListener('scroll', checkScenes);
-        setTimeout(checkScenes, 4500);
+        
+        // Check scenes after curtains open
+        setTimeout(() => {
+            checkScenes();
+        }, 5000);
     </script>
 </body>
 </html>
